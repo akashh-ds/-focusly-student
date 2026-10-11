@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0b0b13">
+  <title>{% block title %}FOCUSLY{% endblock %} · Student Hub</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+<div class="app-shell">
+  <aside class="sidebar" id="sidebar">
+    <a class="brand" href="{{ url_for('dashboard') }}"><span class="brand-mark">f</span><span>focusly<span class="brand-dot">.</span><small>STUDENT HUB</small></span></a>
+    <div class="nav-label">WORKSPACE</div>
+    <nav class="main-nav">
+      <a class="{% if request.endpoint == 'dashboard' %}active{% endif %}" href="{{ url_for('dashboard') }}"><span>◫</span> Overview</a>
+      <a class="{% if request.endpoint in ['tasks_page','add_task','toggle_task','update_status','delete_task'] %}active{% endif %}" href="{{ url_for('tasks_page') }}"><span>☷</span> My tasks <b>{{ nav_counts.pending }}</b></a>
+      <a href="{{ url_for('tasks_page', kind='Assignment') }}"><span>▤</span> Assignments</a>
+      <a href="{{ url_for('tasks_page', kind='Practical') }}"><span>⌘</span> Practicals & viva</a>
+      <a href="{{ url_for('tasks_page', kind='Study') }}"><span>✳</span> Study sessions</a>
+      <a class="{% if request.endpoint in ['exams_page','add_exam','delete_exam'] %}active{% endif %}" href="{{ url_for('exams_page') }}"><span>▦</span> Exam center</a>
+    </nav>
+    <div class="sidebar-bottom">
+      <div class="mini-card"><div class="mini-icon">✦</div><strong>Small steps.<br>Big results.</strong><p>Make today count.</p><div class="mini-line"><i></i></div></div>
+      <div class="profile"><div class="avatar">S</div><div><strong>Student space</strong><small>Your focus era starts here</small></div><span class="profile-menu">•••</span></div>
+    </div>
+  </aside>
+  <main class="main-content">
+    <header class="topbar">
+      <button class="menu-toggle" id="menuToggle" aria-label="Open menu">☰</button>
+      <div class="breadcrumb">Workspace <span>/</span> <strong>{% block breadcrumb %}Overview{% endblock %}</strong></div>
+      <div class="top-actions"><span class="date-chip">{{ today.strftime('%a, %d %b') }}</span><button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">☼</button><div class="avatar small-avatar">S</div></div>
+    </header>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}<div class="flash-wrap">{% for category, message in messages %}<div class="flash {{ category }}">{{ message }}<button onclick="this.parentElement.remove()">×</button></div>{% endfor %}</div>{% endif %}
+    {% endwith %}
+    {% block content %}{% endblock %}
+    <footer class="footer">FOCUSLY <span>·</span> built for your next big thing <span class="footer-right">One task at a time ✦</span></footer>
+  </main>
+</div>
+<div class="mobile-scrim" id="mobileScrim"></div>
+<script src="{{ url_for('static', filename='js/app.js') }}"></script>
+{% block scripts %}{% endblock %}
+</body></html>

@@ -1,22 +1,30 @@
-ffocusly.STUDENT HUB
-WORKSPACE
-◫ Overview ☷ My tasks {{ nav_counts.pending }} ▤ Assignments ⌘ Practicals & viva ✳ Study sessions ▦ Exam center
-✦
-Small steps.
-Big results.
-Make today count.
-
-S
-Student spaceYour focus era starts here
-•••
-☰
-Workspace / {% block breadcrumb %}Overview{% endblock %}
-{{ today.strftime('%a, %d %b') }}☼
-S
-{% with messages = get_flashed_messages(with_categories=true) %} {% if messages %}
-{% for category, message in messages %}
-{{ message }}×
-{% endfor %}
-{% endif %} {% endwith %} {% block content %}{% endblock %}
-FOCUSLY · built for your next big thing One task at a time ✦
-{% block scripts %}{% endblock %}
+{% extends "base.html" %}
+{% block title %}Overview{% endblock %}
+{% block content %}
+<section class="welcome-row"><div><div class="eyebrow"><span class="eyebrow-dot"></span> YOUR PERSONAL STUDY SPACE</div><h1>Make room for <span>what matters.</span></h1><p class="subheading">A clearer mind starts with a clearer plan. Let's make today count.</p></div><button class="primary-btn" onclick="document.getElementById('quickTitle').focus();document.getElementById('quickForm').scrollIntoView({behavior:'smooth',block:'center'})"><span>＋</span> Add a task</button></section>
+<section class="hero-card"><div class="hero-content"><div class="hero-pill"><span>✦</span> YOUR DAILY RESET</div><h2>Progress over<br><em>perfection.</em></h2><p>You don't have to do everything today.<br>Just the next important thing.</p><a class="hero-link" href="{{ url_for('tasks_page') }}">Plan your day <span>↗</span></a></div><div class="hero-art"><div class="orb orb-one"></div><div class="orb orb-two"></div><div class="orbit orbit-one"></div><div class="orbit orbit-two"></div><div class="art-core"><span>✦</span></div><div class="floating-note note-top">FOCUS <b>ON</b></div><div class="floating-note note-bottom">✧ &nbsp; ONE STEP AT A TIME</div></div><div class="hero-index">01 <span>/ 04</span></div></section>
+<section class="stats-grid">
+  <article class="stat-card"><div class="stat-top"><span class="stat-icon violet">☷</span><span class="stat-trend">YOUR WORKLOAD</span></div><div class="stat-number">{{ pending_count }}<span class="stat-unit"> tasks</span></div><div class="stat-label">In your queue</div><div class="stat-bar"><i style="width:{{ (pending_count / total_count * 100) if total_count else 0 }}%"></i></div></article>
+  <article class="stat-card"><div class="stat-top"><span class="stat-icon green">✓</span><span class="stat-trend">LOOK AT YOU GO</span></div><div class="stat-number">{{ completed_count }}<span class="stat-unit"> done</span></div><div class="stat-label">Tasks completed</div><div class="stat-bar green-bar"><i style="width:{{ (completed_count / total_count * 100) if total_count else 0 }}%"></i></div></article>
+  <article class="stat-card"><div class="stat-top"><span class="stat-icon orange">◷</span><span class="stat-trend">NEEDS ATTENTION</span></div><div class="stat-number">{{ overdue_count }}<span class="stat-unit"> late</span></div><div class="stat-label">Past their deadline</div><div class="stat-bar orange-bar"><i style="width:{{ (overdue_count / total_count * 100) if total_count else 0 }}%"></i></div></article>
+  <article class="stat-card"><div class="stat-top"><span class="stat-icon blue">✧</span><span class="stat-trend">KEEP THE MOMENTUM</span></div><div class="stat-number">{{ (completed_count / total_count * 100)|round|int if total_count else 0 }}<span class="stat-unit">%</span></div><div class="stat-label">Overall completion</div><div class="stat-bar blue-bar"><i style="width:{{ (completed_count / total_count * 100) if total_count else 0 }}%"></i></div></article>
+</section>
+<section class="content-grid">
+  <div class="panel tasks-panel"><div class="panel-heading"><div><div class="eyebrow">STAY IN YOUR FLOW</div><h3>Priority list <span class="count-badge">{{ nav_counts.pending }}</span></h3></div><a class="text-link" href="{{ url_for('tasks_page') }}">View all ↗</a></div>
+    <form class="quick-add" id="quickForm" action="{{ url_for('add_task') }}" method="post"><span class="quick-plus">＋</span><input id="quickTitle" name="title" placeholder="What do you need to get done?" required maxlength="180"><input type="hidden" name="kind" value="Study"><input type="hidden" name="priority" value="Medium"><button type="submit">Add task</button></form>
+    <div class="task-list">
+    {% for task in tasks %}
+      <div class="task-row {% if task.status == 'Completed' %}task-done{% endif %}"><form action="{{ url_for('toggle_task', task_id=task.id) }}" method="post"><button class="check-btn {% if task.status == 'Completed' %}checked{% endif %}" aria-label="Toggle task">{% if task.status == 'Completed' %}✓{% endif %}</button></form><div class="task-main"><strong>{{ task.title }}</strong><small>{{ task.subject }} <span>·</span> {{ task.kind }}</small></div><span class="priority priority-{{ task.priority|lower }}">{{ task.priority }}</span><div class="task-due {% if task.due_date and task.due_date < today and task.status != 'Completed' %}late{% endif %}">{{ task.due_date|prettydate }}</div></div>
+    {% else %}<div class="empty-state"><div class="empty-illustration">✧</div><strong>Your next win starts here.</strong><p>Add a task above and watch your plan take shape.</p></div>{% endfor %}
+    </div>
+  </div>
+  <div class="right-column">
+    <div class="panel focus-panel"><div class="panel-heading"><div><div class="eyebrow">MAKE IT COUNT</div><h3>Focus session</h3></div><span class="focus-spark">✦</span></div><div class="timer-ring" id="timerRing"><div class="timer-inner"><span id="timerDisplay">25:00</span><small>MINUTES</small></div></div><p class="timer-caption" id="timerCaption">One thing at a time. You've got this.</p><div class="timer-controls"><button class="primary-btn timer-start" id="timerStart">▶ Start focus</button><button class="icon-btn" id="timerReset" aria-label="Reset timer">↺</button></div><div class="timer-modes"><button class="mode-btn selected" data-minutes="25">Focus 25</button><button class="mode-btn" data-minutes="5">Short break 5</button><button class="mode-btn" data-minutes="15">Long break 15</button></div></div>
+    <div class="panel upcoming-panel"><div class="panel-heading"><div><div class="eyebrow">ON THE HORIZON</div><h3>Coming up</h3></div><a class="text-link" href="{{ url_for('exams_page') }}">Exams ↗</a></div>
+      {% for exam in exams %}<div class="upcoming-item"><div class="calendar-tile"><small>{{ exam.exam_date.strftime('%b') }}</small><strong>{{ exam.exam_date.strftime('%d') }}</strong></div><div class="upcoming-info"><strong>{{ exam.exam_name }}</strong><small>{{ exam.subject }}</small></div><span class="upcoming-arrow">↗</span></div>
+      {% else %}<div class="empty-mini">No exams added yet. <a href="{{ url_for('exams_page') }}">Add one ↗</a></div>{% endfor %}
+      {% for task in upcoming %}<div class="upcoming-item"><div class="calendar-tile task-tile"><small>{{ task.due_date.strftime('%b') }}</small><strong>{{ task.due_date.strftime('%d') }}</strong></div><div class="upcoming-info"><strong>{{ task.title }}</strong><small>{{ task.kind }} · {{ task.subject }}</small></div><span class="upcoming-arrow">↗</span></div>{% endfor %}
+    </div>
+  </div>
+</section>
+{% endblock %}
