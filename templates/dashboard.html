@@ -1,0 +1,22 @@
+ffocusly.STUDENT HUB
+WORKSPACE
+◫ Overview ☷ My tasks {{ nav_counts.pending }} ▤ Assignments ⌘ Practicals & viva ✳ Study sessions ▦ Exam center
+✦
+Small steps.
+Big results.
+Make today count.
+
+S
+Student spaceYour focus era starts here
+•••
+☰
+Workspace / {% block breadcrumb %}Overview{% endblock %}
+{{ today.strftime('%a, %d %b') }}☼
+S
+{% with messages = get_flashed_messages(with_categories=true) %} {% if messages %}
+{% for category, message in messages %}
+{{ message }}×
+{% endfor %}
+{% endif %} {% endwith %} {% block content %}{% endblock %}
+FOCUSLY · built for your next big thing One task at a time ✦
+{% block scripts %}{% endblock %}
